@@ -14,16 +14,10 @@ const db = knex({
     }
 });
 
-
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-
-const database = {
-    users: [],
-    login: []
-};
 
 //getting all the users
 app.get('/', (request, response) => {
