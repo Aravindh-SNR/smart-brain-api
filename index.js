@@ -2,6 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const knex = require('knex');
+
+const db = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      user : 'postgres',
+      password : 'Pbv@90211sql',
+      database : 'smart-brain'
+    }
+});
+
 
 const app = express();
 
@@ -15,49 +27,63 @@ const database = {
 
 //getting all the users
 app.get('/', (request, response) => {
-    response.json(database.users);
+    db.select('*').from('users').then(data => {
+        response.json(data);
+    });
 });
 
 //Sign in
 app.post('/signin', (request, response) => {
     const {email, password} = request.body;
-    const user = database.login.find(user => user.email === email && bcrypt.compareSync(password, user.hash));
-    user ? response.json(database.users.find(myUser => myUser.id === user.id)) : response.status(404).json('User not found');
+
+    db.select('email', 'hash').from('login').where({email}).then(data => {
+        data.length && bcrypt.compareSync(password, data[0].hash)
+        ?
+        db.select('*').from('users').where({email}).then(data => {
+            response.json(data[0]);
+        })
+        :
+        response.status(404).json('User not found');
+    });
 });
 
 //Sign up
 app.post('/signup', (request, response) => {
     const {name, email, password} = request.body;
-    const id = database.users.length ? database.users[database.users.length - 1].id + 1 : 123;
-    database.users.push({
-        id,
+    db('users').insert({
         name,
         email,
-        entries: 0,
         joined: new Date()
-    });
-    bcrypt.hash(password, saltRounds, (error, hash) => {
-        database.login.push({
-            id,
-            email,
-            hash
+    }, ['*']).then(data => {
+        bcrypt.hash(password, saltRounds, (error, hash) => {
+            db('login').insert({
+                email,
+                hash
+            }).then(() => {});
         });
+        response.json(data[0]);
     });
-    response.json(database.users[database.users.length - 1]);
 })
 
 //Getting one user
 app.get('/profile/:id', (request, response) => {
-    const {id} = request.params;
-    const user = database.users.find(user => user.id === Number(id));
-    user ? response.json(user) : response.status(404).json('User not found');
+    db.select('*').from('users').where({id: Number(request.params.id)}).then(data => {
+        data.length ? response.json(data[0]) : response.status(404).json('User not found');
+    });
 });
 
 //Updating the user's rank
 app.put('/image', (request, response) => {
     const {id} = request.body;
-    const user = database.users.find(user => user.id === id);
-    user ? response.json(++user.entries) : response.status(404).json('User not found');
+    db.select('entries').from('users').where({id}).then(data => {
+        data.length
+        ?
+        db('users').where({id}).update({entries: Number(data[0].entries) + 1}, ['entries']).then(data => {
+            response.json(data[0].entries);
+        })
+        :
+        response.status(404).json('User not found');
+    });
 })
 
 app.listen(8080);
