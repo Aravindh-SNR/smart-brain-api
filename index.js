@@ -31,13 +31,12 @@ app.post('/signin', (request, response) => {
     const {email, password} = request.body;
 
     db.select('email', 'hash').from('login').where({email}).then(data => {
-        data.length && bcrypt.compareSync(password, data[0].hash)
-        ?
+        data.length && bcrypt.compareSync(password, data[0].hash) ?
         db.select('*').from('users').where({email}).then(data => {
             response.json(data[0]);
         })
         :
-        response.status(404).json('User not found');
+        response.json('Incorrect email or password, please try again.');
     });
 });
 
@@ -53,30 +52,33 @@ app.post('/signup', (request, response) => {
             db('login').insert({
                 email,
                 hash
-            }).then(() => {});
+            }).then(() => {
+                response.json(data[0]);
+            });
         });
-        response.json(data[0]);
+    }).catch(error => {
+        error.constraint === 'users_email_key' &&
+        response.json('Sorry, an account with the email you entered already exists.');
     });
 })
 
 //Getting one user
 app.get('/profile/:id', (request, response) => {
     db.select('*').from('users').where({id: Number(request.params.id)}).then(data => {
-        data.length ? response.json(data[0]) : response.status(404).json('User not found');
+        data.length ? response.json(data[0]) : response.json('User not found');
     });
 });
 
 //Updating the user's rank
 app.put('/image', (request, response) => {
-    const {id} = request.body;
+    const {id, score} = request.body;
     db.select('entries').from('users').where({id}).then(data => {
-        data.length
-        ?
-        db('users').where({id}).update({entries: Number(data[0].entries) + 1}, ['entries']).then(data => {
+        data.length ?
+        db('users').where({id}).update({entries: Number(data[0].entries) + score}, ['entries']).then(data => {
             response.json(data[0].entries);
         })
         :
-        response.status(404).json('User not found');
+        response.json('User not found');
     });
 })
 
