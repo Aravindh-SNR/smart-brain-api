@@ -4,7 +4,7 @@
   "description": "Backend of the face recognition app",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon"
+    "start": "node index.js"
   },
   "keywords": [
     "face",
