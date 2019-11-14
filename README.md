@@ -1,9 +1,8 @@
-API endpoints/backend for the Smart Brain app at [this repository](https://github.com/Aravindh-SNR/smart-brain)
-Check the app live at https://smart-brain-app.netlify.com/
-
 The backend has been built using:
 - Node and Express
 - PostgreSQL database
+
+Check the app live at https://smart-brain-app.netlify.com/
 
 To run the project locally:
 1. Clone the respository
