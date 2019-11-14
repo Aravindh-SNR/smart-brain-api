@@ -28,12 +28,12 @@ const signUp = require('./controllers/signUp');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
-//The get endpoint / is not currently being used in the front-end and is for future use
-app.get('/', users.getAllUsers(db));
+app.get('/', (request, response) => {response.send('The Smart-Brain app server is up and running!')});
+app.get('/users', users.getAllUsers(db)); //This endpoint is not currently being used from the front-end and is for future use
 app.get('/profile/:id', profile.getUserProfile(db));
 app.post('/signin', signIn.handleSignIn(db, bcrypt));
 app.post('/signup', signUp.handleSignUp(db, bcrypt, SALT_ROUNDS));
 app.put('/image', image.updateEntries(db));
 app.post('/detectface', image.handleApiCall);
 
-app.listen(8080);
+app.listen(process.env.PORT || 3000);
