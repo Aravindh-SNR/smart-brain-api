@@ -1,8 +1,8 @@
 //Getting all the users
 
 const getAllUsers = db => (request, response) => {
-    //SELECT * FROM users
-    db.select('*').from('users')
+    //SELECT * FROM users ORDER BY 'id'
+    db.select('*').from('users').orderBy('id')
     .then(data => {
         response.json(data);
     })
