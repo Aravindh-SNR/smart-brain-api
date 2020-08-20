@@ -13,7 +13,7 @@
   "author": "Aravindh S N R",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "clarifai": "^2.9.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
